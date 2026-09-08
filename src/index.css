@@ -1,0 +1,218 @@
+@import "tailwindcss";
+
+:root {
+  /* Default Palette: Electric Indigo */
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-active: #4338ca;
+  --primary-light: rgba(99, 102, 241, 0.12);
+  --primary-border: rgba(99, 102, 241, 0.28);
+  --primary-glow: rgba(99, 102, 241, 0.35);
+  --gradient-from: #6366f1;
+  --gradient-via: #8b5cf6;
+  --gradient-to: #ec4899;
+  --badge-text: #6366f1;
+  --badge-bg: rgba(99, 102, 241, 0.1);
+}
+
+/* Ocean Blue */
+[data-theme="ocean"] {
+  --primary: #0284c7;
+  --primary-hover: #0369a1;
+  --primary-active: #075985;
+  --primary-light: rgba(2, 132, 199, 0.12);
+  --primary-border: rgba(2, 132, 199, 0.28);
+  --primary-glow: rgba(2, 132, 199, 0.35);
+  --gradient-from: #0284c7;
+  --gradient-via: #2563eb;
+  --gradient-to: #06b6d4;
+  --badge-text: #0284c7;
+  --badge-bg: rgba(2, 132, 199, 0.1);
+}
+
+/* Emerald Forest */
+[data-theme="emerald"] {
+  --primary: #059669;
+  --primary-hover: #047857;
+  --primary-active: #065f46;
+  --primary-light: rgba(5, 150, 105, 0.12);
+  --primary-border: rgba(5, 150, 105, 0.28);
+  --primary-glow: rgba(5, 150, 105, 0.35);
+  --gradient-from: #059669;
+  --gradient-via: #10b981;
+  --gradient-to: #14b8a6;
+  --badge-text: #059669;
+  --badge-bg: rgba(5, 150, 105, 0.1);
+}
+
+/* Sunset Rose */
+[data-theme="rose"] {
+  --primary: #e11d48;
+  --primary-hover: #be123c;
+  --primary-active: #9f1239;
+  --primary-light: rgba(225, 29, 72, 0.12);
+  --primary-border: rgba(225, 29, 72, 0.28);
+  --primary-glow: rgba(225, 29, 72, 0.35);
+  --gradient-from: #e11d48;
+  --gradient-via: #f43f5e;
+  --gradient-to: #fb7185;
+  --badge-text: #e11d48;
+  --badge-bg: rgba(225, 29, 72, 0.1);
+}
+
+/* Solar Amber */
+[data-theme="amber"] {
+  --primary: #d97706;
+  --primary-hover: #b45309;
+  --primary-active: #92400e;
+  --primary-light: rgba(217, 119, 6, 0.12);
+  --primary-border: rgba(217, 119, 6, 0.28);
+  --primary-glow: rgba(217, 119, 6, 0.35);
+  --gradient-from: #d97706;
+  --gradient-via: #f59e0b;
+  --gradient-to: #ea580c;
+  --badge-text: #d97706;
+  --badge-bg: rgba(217, 119, 6, 0.1);
+}
+
+/* Cyber Synthwave */
+[data-theme="cyber"] {
+  --primary: #d946ef;
+  --primary-hover: #c026d3;
+  --primary-active: #a21caf;
+  --primary-light: rgba(217, 70, 239, 0.14);
+  --primary-border: rgba(217, 70, 239, 0.3);
+  --primary-glow: rgba(217, 70, 239, 0.4);
+  --gradient-from: #d946ef;
+  --gradient-via: #8b5cf6;
+  --gradient-to: #06b6d4;
+  --badge-text: #d946ef;
+  --badge-bg: rgba(217, 70, 239, 0.1);
+}
+
+/* Dark mode adjustments for badge text lightness */
+.dark [data-theme="indigo"] { --badge-text: #818cf8; }
+.dark [data-theme="ocean"] { --badge-text: #38bdf8; }
+.dark [data-theme="emerald"] { --badge-text: #34d399; }
+.dark [data-theme="rose"] { --badge-text: #fb7185; }
+.dark [data-theme="amber"] { --badge-text: #fbbf24; }
+.dark [data-theme="cyber"] { --badge-text: #f0abfc; }
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 font-sans antialiased transition-colors duration-200;
+  }
+}
+
+/* OLED Midnight Black mode override */
+html.oled body,
+html.oled {
+  background-color: #000000 !important;
+  color: #f1f5f9 !important;
+}
+
+html.oled .bg-slate-50,
+html.oled .dark\:bg-slate-950 {
+  background-color: #000000 !important;
+}
+
+html.oled .bg-white,
+html.oled .dark\:bg-slate-900 {
+  background-color: #07070a !important;
+  border-color: #1a1a24 !important;
+}
+
+html.oled .bg-slate-100,
+html.oled .dark\:bg-slate-800,
+html.oled .dark\:bg-slate-800\/80,
+html.oled .dark\:bg-slate-800\/70 {
+  background-color: #101017 !important;
+  border-color: #222230 !important;
+}
+
+html.oled .dark\:border-slate-800,
+html.oled .dark\:border-slate-800\/80,
+html.oled .dark\:border-slate-700\/60 {
+  border-color: #1f1f2e !important;
+}
+
+/* Background Surface Styles */
+.surface-mesh {
+  background-image: 
+    radial-gradient(at 0% 0%, var(--primary-light) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, var(--primary-light) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+.surface-dots {
+  background-image: radial-gradient(rgba(148, 163, 184, 0.25) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.dark .surface-dots,
+.oled .surface-dots {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+}
+
+.surface-minimal {
+  background-image: none;
+}
+
+/* Dynamic theme helper utility classes */
+.bg-theme-primary {
+  background-color: var(--primary) !important;
+}
+
+.hover\:bg-theme-primary-hover:hover {
+  background-color: var(--primary-hover) !important;
+}
+
+.text-theme-primary {
+  color: var(--primary) !important;
+}
+
+.border-theme-primary {
+  border-color: var(--primary) !important;
+}
+
+.bg-theme-light {
+  background-color: var(--primary-light) !important;
+}
+
+.border-theme-light {
+  border-color: var(--primary-border) !important;
+}
+
+.shadow-theme-glow {
+  box-shadow: 0 10px 25px -5px var(--primary-glow);
+}
+
+.theme-gradient-text {
+  background-image: linear-gradient(to right, var(--gradient-from), var(--gradient-via), var(--gradient-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.theme-gradient-bg {
+  background-image: linear-gradient(135deg, var(--gradient-from), var(--gradient-via), var(--gradient-to));
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.4);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.7);
+}
