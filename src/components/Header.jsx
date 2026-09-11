@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTaskContext } from '../context/TaskContext';
-import { ThemeSelector } from './ThemeSelector';
 import {
   Kanban,
   List,
@@ -8,11 +7,6 @@ import {
   BarChart3,
   Search,
   Plus,
-  Moon,
-  Sun,
-  Sparkles,
-  Laptop,
-  Palette,
   Timer,
   Download,
   Filter,
@@ -22,9 +16,6 @@ import {
 
 export const Header = () => {
   const {
-    themeConfig,
-    resolvedMode,
-    activeAccent,
     currentView,
     setCurrentView,
     searchQuery,
@@ -41,27 +32,12 @@ export const Header = () => {
     tasks
   } = useTaskContext();
 
-  const [isThemeOpen, setIsThemeOpen] = useState(false);
-
   const isFiltered = searchQuery || priorityFilter !== 'all' || tagFilter !== 'all';
 
   const clearFilters = () => {
     setSearchQuery('');
     setPriorityFilter('all');
     setTagFilter('all');
-  };
-
-  const getModeIcon = () => {
-    if (themeConfig.mode === 'system') {
-      return <Laptop className="w-4 h-4 text-slate-500 dark:text-slate-400" />;
-    }
-    if (resolvedMode === 'oled') {
-      return <Sparkles className="w-4 h-4 text-purple-400" />;
-    }
-    if (resolvedMode === 'dark') {
-      return <Moon className="w-4 h-4 text-indigo-400" />;
-    }
-    return <Sun className="w-4 h-4 text-amber-500" />;
   };
 
   return (
@@ -161,22 +137,6 @@ export const Header = () => {
               <Download className="w-5 h-5" />
             </button>
 
-            {/* Theme & Customizer Button */}
-            <button
-              onClick={() => setIsThemeOpen(true)}
-              className="relative p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all flex items-center justify-center group"
-              title={`Theme: ${themeConfig.mode} (${activeAccent?.name || 'Indigo'}) - Click to customize`}
-            >
-              <div className="flex items-center gap-1.5">
-                {getModeIcon()}
-                {/* Accent color dot indicator */}
-                <span
-                  className="w-2.5 h-2.5 rounded-full ring-2 ring-white dark:ring-slate-900 transition-all shadow-xs group-hover:scale-110"
-                  style={{ backgroundColor: activeAccent?.color || '#6366f1' }}
-                />
-              </div>
-            </button>
-
             {/* Create Task Button */}
             <button
               onClick={() => openCreateTaskModal('todo')}
@@ -256,16 +216,6 @@ export const Header = () => {
               </button>
             )}
 
-            {/* Quick theme trigger badge on toolbar */}
-            <button
-              onClick={() => setIsThemeOpen(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1 text-xs bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors"
-              title="Theme Settings"
-            >
-              <Palette className="w-3 h-3 text-theme-primary" />
-              <span className="hidden sm:inline">Theme</span>
-            </button>
-
             {/* Reset to Demo Data button */}
             <button
               onClick={resetToDefaultData}
@@ -280,9 +230,6 @@ export const Header = () => {
         </div>
 
       </div>
-
-      {/* Theme Selector Popover / Modal */}
-      <ThemeSelector isOpen={isThemeOpen} onClose={() => setIsThemeOpen(false)} />
     </header>
   );
 };
