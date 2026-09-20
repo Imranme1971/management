@@ -17,7 +17,7 @@ export const DEFAULT_TAGS = [
 export const INITIAL_TASKS = [
   {
     id: 'task-1',
-    title: 'Design TaskPulse Landing Page & Dashboard Layout',
+    title: 'Design Imran Khan Landing Page & Dashboard Layout',
     description: 'Create modern dark/light mode mockups with responsive sidebar, Kanban board grid, and productivity metrics widgets.',
     status: 'in_progress',
     priority: 'urgent',

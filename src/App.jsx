@@ -8,6 +8,7 @@ import { AnalyticsView } from './components/AnalyticsView';
 import { TaskModal } from './components/TaskModal';
 import { PomodoroModal } from './components/PomodoroModal';
 import { ExportImportModal } from './components/ExportImportModal';
+import { CalculatorModal } from './components/CalculatorModal';
 import { Toast } from './components/Toast';
 
 const MainContent = () => {
@@ -38,6 +39,7 @@ const AppContainer = () => {
       <MainContent />
       <TaskModal />
       <PomodoroModal />
+      <CalculatorModal />
       <ExportImportModal />
       <Toast />
     </div>

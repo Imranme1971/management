@@ -150,6 +150,7 @@ export const TaskProvider = ({ children }) => {
   const [pomodoroTask, setPomodoroTask] = useState(null);
   const [isExportImportOpen, setIsExportImportOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
+  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
 
   // Toast Notification
   const [toast, setToast] = useState(null);
@@ -252,7 +253,7 @@ export const TaskProvider = ({ children }) => {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tasks, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `taskpulse-export-${new Date().toISOString().split('T')[0]}.json`);
+    downloadAnchor.setAttribute("download", `imran-khan-export-${new Date().toISOString().split('T')[0]}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -352,6 +353,8 @@ export const TaskProvider = ({ children }) => {
         startPomodoroForTask,
         isExportImportOpen,
         setIsExportImportOpen,
+        isCalculatorOpen,
+        setIsCalculatorOpen,
         exportTasksJSON,
         importTasksJSON,
         resetToDefaultData,
