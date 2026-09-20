@@ -17,7 +17,12 @@ import {
   Volume2,
   VolumeX,
   CheckCircle2,
-  Sparkles
+  Sparkles,
+  HeartPulse,
+  Scale,
+  Flame,
+  Activity,
+  BookmarkPlus
 } from 'lucide-react';
 
 // Dedicated themes exclusively for the Calculator
@@ -112,7 +117,7 @@ export const CalculatorModal = () => {
     showToast
   } = useTaskContext();
 
-  // Active Tab: 'calc' | 'productivity' | 'history' | 'themes'
+  // Active Tab: 'calc' | 'productivity' | 'bmi' | 'history' | 'themes'
   const [activeTab, setActiveTab] = useState('calc');
 
   // Calculator-Specific Theme State (Persisted in localStorage)
@@ -166,6 +171,25 @@ export const CalculatorModal = () => {
   const [sprintTotalHours, setSprintTotalHours] = useState('40');
   const [sprintDays, setSprintDays] = useState('5');
 
+  // BMI Calculator State
+  const [bmiUnit, setBmiUnit] = useState('metric'); // 'metric' | 'imperial'
+  const [bmiHeightCm, setBmiHeightCm] = useState('175');
+  const [bmiWeightKg, setBmiWeightKg] = useState('70');
+  const [bmiHeightFt, setBmiHeightFt] = useState('5');
+  const [bmiHeightIn, setBmiHeightIn] = useState('9');
+  const [bmiWeightLbs, setBmiWeightLbs] = useState('154');
+  const [bmiAge, setBmiAge] = useState('28');
+  const [bmiGender, setBmiGender] = useState('male'); // 'male' | 'female'
+  const [bmiActivity, setBmiActivity] = useState('moderate');
+  const [bmiRecords, setBmiRecords] = useState(() => {
+    try {
+      const saved = localStorage.getItem('imran_khan_bmi_records');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
   // Save Settings to LocalStorage
   useEffect(() => {
     try {
@@ -198,6 +222,14 @@ export const CalculatorModal = () => {
       console.error(e);
     }
   }, [history]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('imran_khan_bmi_records', JSON.stringify(bmiRecords));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [bmiRecords]);
 
   // Tactile Synthesized Audio Feedback
   const playBeep = (type = 'click') => {
@@ -277,7 +309,7 @@ export const CalculatorModal = () => {
     return evaluated === 'Error' ? '' : evaluated;
   };
 
-  // Input & Button Handlers
+  // Keypad Handlers
   const handleInput = (val) => {
     playBeep('click');
     if (justCalculated) {
@@ -453,7 +485,132 @@ export const CalculatorModal = () => {
     parseFloat(sprintTotalHours || 0) / Math.max(1, parseFloat(sprintDays || 1))
   ).toFixed(1);
 
-  // Theme Styling Configuration specifically for the Calculator Modal
+  // BMI Math Calculations
+  let heightInM = 0;
+  let heightInCm = 0;
+  let weightInKg = 0;
+
+  if (bmiUnit === 'metric') {
+    heightInCm = parseFloat(bmiHeightCm) || 0;
+    heightInM = heightInCm / 100;
+    weightInKg = parseFloat(bmiWeightKg) || 0;
+  } else {
+    const ft = parseFloat(bmiHeightFt) || 0;
+    const inches = parseFloat(bmiHeightIn) || 0;
+    const totalInches = ft * 12 + inches;
+    heightInCm = totalInches * 2.54;
+    heightInM = heightInCm / 100;
+    weightInKg = (parseFloat(bmiWeightLbs) || 0) * 0.45359237;
+  }
+
+  const bmiScore = heightInM > 0 && weightInKg > 0 ? (weightInKg / (heightInM * heightInM)).toFixed(1) : '0.0';
+  const numBmi = parseFloat(bmiScore);
+
+  let bmiCategory = {
+    label: 'Normal Weight',
+    color: 'text-emerald-500',
+    bgColor: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400',
+    description: 'Optimal healthy weight. Low risk of weight-related health issues.',
+    range: '18.5 – 24.9',
+    badge: 'Optimal'
+  };
+
+  if (numBmi < 18.5) {
+    bmiCategory = {
+      label: 'Underweight',
+      color: 'text-sky-400',
+      bgColor: 'bg-sky-500/15 border-sky-500/30 text-sky-400',
+      description: 'Below normal body weight. Consider nutrient-rich calorie intake.',
+      range: '< 18.5',
+      badge: 'Underweight'
+    };
+  } else if (numBmi >= 18.5 && numBmi <= 24.9) {
+    bmiCategory = {
+      label: 'Normal Weight',
+      color: 'text-emerald-400',
+      bgColor: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400',
+      description: 'Optimal healthy weight. Great balance for stamina and productivity!',
+      range: '18.5 – 24.9',
+      badge: 'Optimal'
+    };
+  } else if (numBmi >= 25.0 && numBmi <= 29.9) {
+    bmiCategory = {
+      label: 'Overweight',
+      color: 'text-amber-400',
+      bgColor: 'bg-amber-500/15 border-amber-500/30 text-amber-400',
+      description: 'Slightly above standard range. Focus on regular movement and wholesome meals.',
+      range: '25.0 – 29.9',
+      badge: 'Overweight'
+    };
+  } else if (numBmi >= 30.0 && numBmi <= 34.9) {
+    bmiCategory = {
+      label: 'Obesity Class I',
+      color: 'text-orange-400',
+      bgColor: 'bg-orange-500/15 border-orange-500/30 text-orange-400',
+      description: 'Moderately high body fat. Regular cardio & fitness routine recommended.',
+      range: '30.0 – 34.9',
+      badge: 'Class I'
+    };
+  } else if (numBmi >= 35.0) {
+    bmiCategory = {
+      label: 'Obesity Class II/III',
+      color: 'text-rose-400',
+      bgColor: 'bg-rose-500/15 border-rose-500/30 text-rose-400',
+      description: 'Higher health risk. Personalized fitness & medical advice is recommended.',
+      range: '≥ 35.0',
+      badge: 'High Risk'
+    };
+  }
+
+  // Healthy Weight Range for this height
+  const minHealthyKg = heightInM > 0 ? (18.5 * heightInM * heightInM).toFixed(1) : '0';
+  const maxHealthyKg = heightInM > 0 ? (24.9 * heightInM * heightInM).toFixed(1) : '0';
+  const minHealthyLbs = (parseFloat(minHealthyKg) * 2.20462).toFixed(1);
+  const maxHealthyLbs = (parseFloat(maxHealthyKg) * 2.20462).toFixed(1);
+
+  // BMR & TDEE Calculations
+  const ageNum = parseFloat(bmiAge) || 28;
+  let bmr = 0;
+  if (heightInCm > 0 && weightInKg > 0) {
+    if (bmiGender === 'male') {
+      bmr = Math.round(10 * weightInKg + 6.25 * heightInCm - 5 * ageNum + 5);
+    } else {
+      bmr = Math.round(10 * weightInKg + 6.25 * heightInCm - 5 * ageNum - 161);
+    }
+  }
+
+  const activityMultipliers = {
+    sedentary: 1.2,
+    light: 1.375,
+    moderate: 1.55,
+    active: 1.725
+  };
+  const tdee = Math.round(bmr * (activityMultipliers[bmiActivity] || 1.375));
+
+  const handleSaveBmiRecord = () => {
+    if (numBmi <= 0) return;
+    const newRec = {
+      id: `bmi-${Date.now()}`,
+      bmi: numBmi,
+      category: bmiCategory.label,
+      weight: bmiUnit === 'metric' ? `${bmiWeightKg} kg` : `${bmiWeightLbs} lbs`,
+      height: bmiUnit === 'metric' ? `${bmiHeightCm} cm` : `${bmiHeightFt}'${bmiHeightIn}"`,
+      timestamp: new Date().toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+    };
+    setBmiRecords((prev) => [newRec, ...prev.slice(0, 19)]);
+    playBeep('equals');
+    showToast(`Saved BMI ${numBmi} (${bmiCategory.label}) to health records!`, 'success');
+  };
+
+  const handleClearBmiRecords = () => {
+    setBmiRecords([]);
+    showToast('BMI records cleared', 'info');
+  };
+
+  // Progress Bar percentage for meter
+  const meterPercent = Math.min(100, Math.max(0, ((numBmi - 14) / (38 - 14)) * 100));
+
+  // Theme Styling Configuration
   const getThemeStyles = () => {
     switch (calcTheme) {
       case 'cyberpunk':
@@ -648,14 +805,14 @@ export const CalculatorModal = () => {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-sm font-bold">
-                  Calculator & Time Engine
+                  Calculator & Wellness Tools
                 </h2>
                 <span className={`px-2 py-0.2 text-[9px] font-extrabold uppercase tracking-wider rounded-full border ${currentStyles.badge}`}>
                   {CALC_THEMES.find(t => t.id === calcTheme)?.name || 'Custom'}
                 </span>
               </div>
               <p className="text-[10px] opacity-75">
-                Full Keyboard & Custom Calculator Themes
+                Math, Time Estimates, BMI Health & Themes
               </p>
             </div>
           </div>
@@ -703,7 +860,7 @@ export const CalculatorModal = () => {
         <div className={`flex items-center p-1.5 mx-4 mt-3 rounded-2xl border ${currentStyles.tabs}`}>
           <button
             onClick={() => setActiveTab('calc')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-xl text-xs transition-all ${
+            className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-xl text-xs transition-all ${
               activeTab === 'calc' ? currentStyles.tabActive : currentStyles.tabInactive
             }`}
           >
@@ -713,24 +870,34 @@ export const CalculatorModal = () => {
 
           <button
             onClick={() => setActiveTab('productivity')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-xl text-xs transition-all ${
+            className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-xl text-xs transition-all ${
               activeTab === 'productivity' ? currentStyles.tabActive : currentStyles.tabInactive
             }`}
           >
             <Zap className="w-3.5 h-3.5" />
-            <span>Time Tools</span>
+            <span>Time</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('bmi')}
+            className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-xl text-xs transition-all ${
+              activeTab === 'bmi' ? currentStyles.tabActive : currentStyles.tabInactive
+            }`}
+          >
+            <HeartPulse className="w-3.5 h-3.5" />
+            <span>BMI</span>
           </button>
 
           <button
             onClick={() => setActiveTab('history')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-xl text-xs transition-all relative ${
+            className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-xl text-xs transition-all relative ${
               activeTab === 'history' ? currentStyles.tabActive : currentStyles.tabInactive
             }`}
           >
             <History className="w-3.5 h-3.5" />
-            <span>History</span>
+            <span>Tape</span>
             {history.length > 0 && (
-              <span className="ml-0.5 px-1.5 py-0.2 text-[9px] bg-theme-primary text-white rounded-full font-bold">
+              <span className="ml-0.5 px-1 py-0.2 text-[8px] bg-theme-primary text-white rounded-full font-bold">
                 {history.length}
               </span>
             )}
@@ -738,12 +905,12 @@ export const CalculatorModal = () => {
 
           <button
             onClick={() => setActiveTab('themes')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-xl text-xs transition-all ${
+            className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-xl text-xs transition-all ${
               activeTab === 'themes' ? currentStyles.tabActive : currentStyles.tabInactive
             }`}
           >
             <Palette className="w-3.5 h-3.5" />
-            <span>Themes</span>
+            <span>Skins</span>
           </button>
         </div>
 
@@ -1123,7 +1290,280 @@ export const CalculatorModal = () => {
           </div>
         )}
 
-        {/* Tab 3: History Tape */}
+        {/* Tab 3: BMI Health & Calorie Calculator */}
+        {activeTab === 'bmi' && (
+          <div className="p-4 space-y-3.5 overflow-y-auto max-h-[60vh]">
+            {/* Unit & Gender Switcher */}
+            <div className="flex items-center justify-between gap-2">
+              {/* Unit Toggle */}
+              <div className="flex items-center p-1 rounded-xl bg-black/10 dark:bg-white/5 border border-current/10">
+                <button
+                  onClick={() => setBmiUnit('metric')}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                    bmiUnit === 'metric'
+                      ? 'bg-theme-primary text-white shadow-sm'
+                      : 'opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  Metric (cm, kg)
+                </button>
+                <button
+                  onClick={() => setBmiUnit('imperial')}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                    bmiUnit === 'imperial'
+                      ? 'bg-theme-primary text-white shadow-sm'
+                      : 'opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  Imperial (ft, lbs)
+                </button>
+              </div>
+
+              {/* Gender Toggle */}
+              <div className="flex items-center p-1 rounded-xl bg-black/10 dark:bg-white/5 border border-current/10">
+                <button
+                  onClick={() => setBmiGender('male')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                    bmiGender === 'male'
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  Male
+                </button>
+                <button
+                  onClick={() => setBmiGender('female')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                    bmiGender === 'female'
+                      ? 'bg-pink-600 text-white shadow-sm'
+                      : 'opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  Female
+                </button>
+              </div>
+            </div>
+
+            {/* Main Result Card */}
+            <div className={`p-4 rounded-2xl border relative overflow-hidden ${currentStyles.screen}`}>
+              <div className="flex items-start justify-between">
+                <div>
+                  <span className="text-[10px] uppercase tracking-wider opacity-70 font-semibold flex items-center gap-1">
+                    <Scale className="w-3.5 h-3.5" /> Body Mass Index (BMI)
+                  </span>
+                  <div className="flex items-baseline gap-2.5 mt-1">
+                    <span className={`text-4xl font-extrabold tracking-tight font-mono ${bmiCategory.color}`}>
+                      {bmiScore}
+                    </span>
+                    <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold border ${bmiCategory.bgColor}`}>
+                      {bmiCategory.label}
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleSaveBmiRecord}
+                  className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all border ${currentStyles.badge} hover:brightness-110`}
+                  title="Save BMI reading to records"
+                >
+                  <BookmarkPlus className="w-3.5 h-3.5" /> Save
+                </button>
+              </div>
+
+              {/* Description */}
+              <p className="text-[11px] opacity-80 mt-2">
+                {bmiCategory.description}
+              </p>
+
+              {/* Visual Spectrum Gauge */}
+              <div className="mt-3 space-y-1">
+                <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden flex relative">
+                  <div className="h-full w-[20%] bg-sky-400" title="Underweight (<18.5)" />
+                  <div className="h-full w-[35%] bg-emerald-400" title="Normal (18.5 - 24.9)" />
+                  <div className="h-full w-[25%] bg-amber-400" title="Overweight (25.0 - 29.9)" />
+                  <div className="h-full w-[20%] bg-rose-500" title="Obesity (30.0+)" />
+
+                  {/* Marker Pin */}
+                  <div
+                    className="absolute top-0 bottom-0 w-1.5 bg-white shadow-md rounded-full -translate-x-1/2 transition-all duration-300"
+                    style={{ left: `${meterPercent}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-[9px] opacity-60 font-mono">
+                  <span>15.0</span>
+                  <span>18.5</span>
+                  <span>25.0</span>
+                  <span>30.0</span>
+                  <span>40.0</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Inputs Grid */}
+            <div className="grid grid-cols-2 gap-2.5 p-3 rounded-2xl border bg-black/10 dark:bg-white/5 border-current/10">
+              {/* Height Input */}
+              {bmiUnit === 'metric' ? (
+                <div>
+                  <label className="text-[10px] font-semibold opacity-70 block mb-1">
+                    Height (cm)
+                  </label>
+                  <input
+                    type="number"
+                    value={bmiHeightCm}
+                    onChange={(e) => setBmiHeightCm(e.target.value)}
+                    placeholder="175"
+                    className="w-full px-2.5 py-1.5 bg-black/10 dark:bg-white/10 border border-current/20 rounded-lg text-xs font-mono focus:outline-none focus:ring-1"
+                  />
+                </div>
+              ) : (
+                <div className="flex gap-1.5">
+                  <div className="flex-1">
+                    <label className="text-[10px] font-semibold opacity-70 block mb-1">
+                      Feet
+                    </label>
+                    <input
+                      type="number"
+                      value={bmiHeightFt}
+                      onChange={(e) => setBmiHeightFt(e.target.value)}
+                      placeholder="5"
+                      className="w-full px-2.5 py-1.5 bg-black/10 dark:bg-white/10 border border-current/20 rounded-lg text-xs font-mono focus:outline-none focus:ring-1"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-[10px] font-semibold opacity-70 block mb-1">
+                      Inches
+                    </label>
+                    <input
+                      type="number"
+                      value={bmiHeightIn}
+                      onChange={(e) => setBmiHeightIn(e.target.value)}
+                      placeholder="9"
+                      className="w-full px-2.5 py-1.5 bg-black/10 dark:bg-white/10 border border-current/20 rounded-lg text-xs font-mono focus:outline-none focus:ring-1"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Weight Input */}
+              {bmiUnit === 'metric' ? (
+                <div>
+                  <label className="text-[10px] font-semibold opacity-70 block mb-1">
+                    Weight (kg)
+                  </label>
+                  <input
+                    type="number"
+                    value={bmiWeightKg}
+                    onChange={(e) => setBmiWeightKg(e.target.value)}
+                    placeholder="70"
+                    className="w-full px-2.5 py-1.5 bg-black/10 dark:bg-white/10 border border-current/20 rounded-lg text-xs font-mono focus:outline-none focus:ring-1"
+                  />
+                </div>
+              ) : (
+                <div>
+                  <label className="text-[10px] font-semibold opacity-70 block mb-1">
+                    Weight (lbs)
+                  </label>
+                  <input
+                    type="number"
+                    value={bmiWeightLbs}
+                    onChange={(e) => setBmiWeightLbs(e.target.value)}
+                    placeholder="154"
+                    className="w-full px-2.5 py-1.5 bg-black/10 dark:bg-white/10 border border-current/20 rounded-lg text-xs font-mono focus:outline-none focus:ring-1"
+                  />
+                </div>
+              )}
+
+              {/* Age */}
+              <div>
+                <label className="text-[10px] font-semibold opacity-70 block mb-1">
+                  Age (years)
+                </label>
+                <input
+                  type="number"
+                  value={bmiAge}
+                  onChange={(e) => setBmiAge(e.target.value)}
+                  placeholder="28"
+                  className="w-full px-2.5 py-1.5 bg-black/10 dark:bg-white/10 border border-current/20 rounded-lg text-xs font-mono focus:outline-none focus:ring-1"
+                />
+              </div>
+
+              {/* Activity Level */}
+              <div>
+                <label className="text-[10px] font-semibold opacity-70 block mb-1">
+                  Activity Level
+                </label>
+                <select
+                  value={bmiActivity}
+                  onChange={(e) => setBmiActivity(e.target.value)}
+                  className="w-full px-2.5 py-1.5 bg-black/10 dark:bg-white/10 border border-current/20 rounded-lg text-xs focus:outline-none focus:ring-1"
+                >
+                  <option value="sedentary">Sedentary (Desk job)</option>
+                  <option value="light">Light (1-2 days/wk)</option>
+                  <option value="moderate">Moderate (3-5 days/wk)</option>
+                  <option value="active">Active (6-7 days/wk)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Health & Calorie Insights Box */}
+            <div className="grid grid-cols-2 gap-2.5">
+              {/* Healthy Target Range */}
+              <div className="p-3 rounded-xl border bg-black/10 dark:bg-white/5 border-current/10 space-y-1">
+                <span className="text-[10px] opacity-70 flex items-center gap-1 font-semibold">
+                  <Activity className="w-3.5 h-3.5 text-emerald-400" /> Ideal Weight Target
+                </span>
+                <p className="text-xs font-extrabold font-mono text-emerald-400">
+                  {bmiUnit === 'metric' ? `${minHealthyKg} – ${maxHealthyKg} kg` : `${minHealthyLbs} – ${maxHealthyLbs} lbs`}
+                </p>
+                <p className="text-[9px] opacity-60">
+                  Healthy normal BMI (18.5 – 24.9)
+                </p>
+              </div>
+
+              {/* Daily Energy / Calories */}
+              <div className="p-3 rounded-xl border bg-black/10 dark:bg-white/5 border-current/10 space-y-1">
+                <span className="text-[10px] opacity-70 flex items-center gap-1 font-semibold">
+                  <Flame className="w-3.5 h-3.5 text-orange-400" /> Daily Calorie Goal
+                </span>
+                <p className="text-xs font-extrabold font-mono text-orange-400">
+                  ~{tdee.toLocaleString()} kcal/day
+                </p>
+                <p className="text-[9px] opacity-60">
+                  BMR base: {bmr.toLocaleString()} kcal
+                </p>
+              </div>
+            </div>
+
+            {/* Saved BMI Records */}
+            {bmiRecords.length > 0 && (
+              <div className="pt-2 border-t border-current/10 space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold">Recent Saved BMI Logs ({bmiRecords.length})</span>
+                  <button
+                    onClick={handleClearBmiRecords}
+                    className="text-[10px] text-rose-400 hover:underline"
+                  >
+                    Clear Logs
+                  </button>
+                </div>
+                <div className="space-y-1.5 max-h-24 overflow-y-auto">
+                  {bmiRecords.map((rec) => (
+                    <div
+                      key={rec.id}
+                      className="p-2 rounded-lg bg-black/10 dark:bg-white/5 text-[11px] flex items-center justify-between font-mono"
+                    >
+                      <span className="font-bold">{rec.bmi} ({rec.category})</span>
+                      <span className="opacity-70">{rec.weight} • {rec.timestamp}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          </div>
+        )}
+
+        {/* Tab 4: History Tape */}
         {activeTab === 'history' && (
           <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
             <div className="flex items-center justify-between">
@@ -1195,10 +1635,9 @@ export const CalculatorModal = () => {
           </div>
         )}
 
-        {/* Tab 4: Themes & Customization (Dedicated solely to Calculator) */}
+        {/* Tab 5: Themes & Customization (Dedicated solely to Calculator) */}
         {activeTab === 'themes' && (
           <div className="p-4 space-y-4 overflow-y-auto max-h-[60vh]">
-            
             {/* Header / Intro */}
             <div className="flex items-center justify-between">
               <div>
@@ -1320,7 +1759,6 @@ export const CalculatorModal = () => {
                 <span>{soundEnabled ? 'Enabled' : 'Muted'}</span>
               </button>
             </div>
-
           </div>
         )}
 
